@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Player } from '@/types';
 import { PLAYERS_DB } from '@/data/players';
-import { Search, X, SlidersHorizontal, Sliders, Check } from 'lucide-react';
+import { Search, X, Sliders } from 'lucide-react';
 
 interface PlayerSelectorModalProps {
   isOpen: boolean;
@@ -23,7 +23,7 @@ const SEASONS_LIST = [
 
 const POSITIONS_LIST = ['Tất cả', 'ST', 'LW', 'RW', 'CF', 'CAM', 'LM', 'RM', 'CM', 'CDM', 'LWB', 'RWB', 'LB', 'RB', 'CB', 'GK'];
 
-// Định nghĩa màu Gradient và màu viền giống hệt trên Sân
+// Định nghĩa màu Gradient và màu viền cho Thẻ giống hệt trên Sân
 const GET_SEASON_CARD_STYLE = (season: string) => {
   switch (season) {
     case 'ICON':
@@ -89,9 +89,7 @@ export default function PlayerSelectorModal({
   const [maxSalary, setMaxSalary] = useState(30);
   const [minOVR, setMinOVR] = useState(80);
 
-  // Thêm trạng thái Ẩn/Hiện bộ lọc nâng cao trên di động (Mặc định là ẨN)
   const [showAdvancedFilters, setShowFilters] = useState(false);
-
   const [modalImgErrors, setImgErrors] = useState<Record<string, boolean>>({});
 
   const filteredPlayers = useMemo(() => {
@@ -123,7 +121,7 @@ export default function PlayerSelectorModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800/50 cursor-pointer transition"
+            className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800/50 cursor-pointer transition shrink-0"
           >
             <X className="w-6 h-6" />
           </button>
@@ -133,7 +131,6 @@ export default function PlayerSelectorModal({
         <div className="p-3.5 border-b border-gray-800 bg-[#111A2C] space-y-3 shrink-0">
           
           <div className="flex items-center space-x-2">
-            {/* Ô tìm kiếm tên */}
             <div className="relative flex-1">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400" />
               <input
@@ -145,10 +142,9 @@ export default function PlayerSelectorModal({
               />
             </div>
 
-            {/* Nút bấm Đóng/Mở bộ lọc nâng cao cực kỳ trực quan */}
             <button
               onClick={() => setShowFilters(!showAdvancedFilters)}
-              className={`flex items-center space-x-1.5 px-3 py-2.5 rounded-xl border text-xs font-bold transition cursor-pointer ${
+              className={`flex items-center space-x-1.5 px-3 py-2.5 rounded-xl border text-xs font-bold transition cursor-pointer shrink-0 ${
                 showAdvancedFilters || selectedSeason !== 'Tất cả' || selectedPosition !== 'Tất cả'
                   ? 'bg-fo4-accent/15 border-fo4-accent text-fo4-accent'
                   : 'bg-[#182335] border-gray-700 text-gray-300 hover:text-white'
@@ -266,7 +262,7 @@ export default function PlayerSelectorModal({
                 <div
                   key={player.id}
                   onClick={() => onSelectPlayer(player)}
-                  className="flex items-center justify-between p-3.5 bg-fo4-card/65 hover:bg-fo4-card border border-gray-800/80 hover:border-fo4-accent/40 rounded-2xl transition cursor-pointer active:scale-[0.99] group shadow-sm"
+                  className="flex items-center justify-between p-3 bg-fo4-card/65 hover:bg-fo4-card border border-gray-800/80 hover:border-fo4-accent/40 rounded-2xl transition cursor-pointer active:scale-[0.99] group shadow-sm animate-in fade-in duration-200"
                 >
                   {/* Trái: THẺ CẦU THỦ 3D thu nhỏ + Thông tin chính */}
                   <div className="flex items-center space-x-4">
@@ -291,6 +287,7 @@ export default function PlayerSelectorModal({
                           <img
                             src={player.image}
                             alt={player.name}
+                            referrerPolicy="no-referrer"
                             className="w-full h-full object-contain relative z-10 scale-125"
                             onError={() => {
                               setImgErrors(prev => ({ ...prev, [player.id]: true }));
@@ -338,7 +335,7 @@ export default function PlayerSelectorModal({
             })
           ) : (
             <div className="text-center py-14 text-gray-500 bg-fo4-card/25 rounded-2xl border border-dashed border-gray-800">
-              <p className="font-black text-sm text-gray-400">Không tìm thấy huấn luyện viên nào</p>
+              <p className="font-black text-sm text-gray-400">Không tìm thấy cầu thủ nào phù hợp</p>
               <p className="text-xs mt-1 text-gray-500">Hãy thử giảm OVR tối thiểu hoặc kéo tăng quỹ lương tối đa!</p>
             </div>
           )}
