@@ -6,7 +6,7 @@ import { decodeSquadState } from '@/lib/utils';
 import { PLAYERS_DB } from '@/data/players';
 
 import FootballField from '@/components/FootballField';
-import SearchModal from '@/components/SearchModal';
+import PlayerSelectorModal from '@/components/PlayerSelectorModal';
 import SquadStats from '@/components/SquadStats';
 import TeamColorDisplay from '@/components/TeamColorDisplay';
 import ShareSavePanel from '@/components/ShareSavePanel';
@@ -271,7 +271,7 @@ function SquadBuilderContent() {
       </div>
 
       {isModalOpen && activeSlotIndex !== null && (
-        <SearchModal
+        <PlayerSelectorModal
           isOpen={isModalOpen}
           onClose={() => { setIsModalOpen(false); setActiveSlotIndex(null); }}
           onSelectPlayer={handleSelectPlayer}
@@ -288,12 +288,13 @@ export default function HomePage() {
       <header className="bg-fo4-card border-b border-gray-800 py-4 px-6 sticky top-0 z-40 backdrop-blur-md bg-opacity-95 shadow-lg">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
-            <div className="bg-[#00FF87] text-[#0B0F19] p-1.5 rounded-lg font-black text-xs">FCO</div>
+            <div className="bg-[#00FF87] text-[#0B0F19] p-1.5 rounded-lg font-black text-xs">CO</div>
             <div>
               <h1 className="text-white font-black text-sm md:text-base uppercase tracking-wider">FO4 Squad Master</h1>
               <p className="text-[10px] text-gray-400 hidden sm:block">Trình xây dựng đội hình tối ưu cho FC Online</p>
             </div>
           </div>
+          
           <div className="flex items-center space-x-2 bg-[#0B0F19]/80 border border-gray-800 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-300">
             <Users className="w-4 h-4 text-[#00FF87]" />
             <span>Mùa Giải 2026</span>
@@ -311,4 +312,4 @@ export default function HomePage() {
       <PWAInstallPrompt />
     </>
   );
-      }
+          }
