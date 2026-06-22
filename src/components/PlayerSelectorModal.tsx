@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Player } from '@/types';
 import { PLAYERS_DB } from '@/data/players';
-import { Search, X, SlidersHorizontal } from 'lucide-react';
+import { Search, X, SlidersHorizontal, Sliders, Check } from 'lucide-react';
 
 interface PlayerSelectorModalProps {
   isOpen: boolean;
@@ -14,7 +14,7 @@ interface PlayerSelectorModalProps {
 
 const SEASONS_LIST = [
   { code: 'Tất cả', label: 'TẤT CẢ', bg: 'bg-[#182335] text-white border-gray-700' },
-  { code: 'VNM', label: 'VNM (VIỆT NAM)', bg: 'bg-red-700 border-yellow-500 text-yellow-300 font-extrabold shadow-lg' },
+  { code: 'VNM', label: 'VNM', bg: 'bg-red-700 border-yellow-500 text-yellow-300 font-extrabold shadow-lg' },
   { code: 'ICON', label: 'ICON', bg: 'bg-gradient-to-r from-amber-600 to-yellow-400 text-black font-black border-yellow-300' },
   { code: '24TOTY', label: '24TOTY', bg: 'bg-gradient-to-r from-blue-900 to-indigo-950 text-[#00FF87] font-black border-emerald-400/50' },
   { code: '23UCL', label: '23UCL', bg: 'bg-gradient-to-r from-blue-800 to-blue-950 text-white font-bold border-blue-400' },
@@ -23,7 +23,7 @@ const SEASONS_LIST = [
 
 const POSITIONS_LIST = ['Tất cả', 'ST', 'LW', 'RW', 'CF', 'CAM', 'LM', 'RM', 'CM', 'CDM', 'LWB', 'RWB', 'LB', 'RB', 'CB', 'GK'];
 
-// Định nghĩa màu Gradient và màu viền cho Thẻ trong danh sách Modal giống hệt trên Sân
+// Định nghĩa màu Gradient và màu viền giống hệt trên Sân
 const GET_SEASON_CARD_STYLE = (season: string) => {
   switch (season) {
     case 'ICON':
@@ -86,11 +86,12 @@ export default function PlayerSelectorModal({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSeason, setSelectedSeason] = useState('Tất cả');
   const [selectedPosition, setSelectedPosition] = useState('Tất cả');
-  
   const [maxSalary, setMaxSalary] = useState(30);
   const [minOVR, setMinOVR] = useState(80);
 
-  // Quản lý lỗi ảnh tải trên từng ID cầu thủ để tránh vỡ giao diện
+  // Thêm trạng thái Ẩn/Hiện bộ lọc nâng cao trên di động (Mặc định là ẨN)
+  const [showAdvancedFilters, setShowFilters] = useState(false);
+
   const [modalImgErrors, setImgErrors] = useState<Record<string, boolean>>({});
 
   const filteredPlayers = useMemo(() => {
@@ -115,10 +116,10 @@ export default function PlayerSelectorModal({
       <div className="bg-fo4-dark border border-gray-800 rounded-2xl w-full max-w-2xl h-[92vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in-95">
         
         {/* Header Modal */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-800 bg-[#0E1524]">
+        <div className="flex items-center justify-between p-4 border-b border-gray-800 bg-[#0E1524] shrink-0">
           <div>
             <h2 className="text-white font-black text-base md:text-lg tracking-wider">TÌM KIẾM HUẤN LUYỆN VIÊN</h2>
-            <p className="text-xs text-gray-400">Đang tìm vị trí phù hợp cho vai trò <span className="text-[#00FF87] font-bold bg-[#14251C] px-2 py-0.5 rounded border border-emerald-500/20">{targetRole}</span></p>
+            <p className="text-xs text-gray-400">Đang chọn vị trí cho vai trò <span className="text-[#00FF87] font-bold bg-[#14251C] px-2 py-0.5 rounded border border-emerald-500/20">{targetRole}</span></p>
           </div>
           <button
             onClick={onClose}
@@ -128,101 +129,123 @@ export default function PlayerSelectorModal({
           </button>
         </div>
 
-        {/* Khung Bộ Lọc */}
-        <div className="p-4 border-b border-gray-800 bg-[#111A2C] space-y-4">
+        {/* Khung tìm kiếm chính & Nút mở rộng bộ lọc */}
+        <div className="p-3.5 border-b border-gray-800 bg-[#111A2C] space-y-3 shrink-0">
           
-          {/* Ô tìm kiếm tên */}
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Nhập tên cầu thủ, ví dụ: Ronaldo, Messi, Quang Hải..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#182335] text-white pl-11 pr-4 py-2.5 rounded-xl border border-gray-700/60 focus:border-fo4-accent outline-none text-sm transition"
-            />
-          </div>
-
-          {/* Bộ lọc nút Vị trí đá */}
-          <div className="space-y-1.5">
-            <label className="block text-gray-400 text-[10px] font-extrabold uppercase tracking-wider">Vị Trí Cụ Thể</label>
-            <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
-              {POSITIONS_LIST.map(pos => (
-                <button
-                  key={pos}
-                  onClick={() => setSelectedPosition(pos)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-extrabold cursor-pointer border transition-all ${
-                    selectedPosition === pos
-                      ? 'bg-fo4-accent border-fo4-accent text-fo4-dark shadow-md shadow-emerald-500/20'
-                      : 'bg-[#182335] border-gray-700 text-gray-300 hover:text-white hover:border-gray-500'
-                  }`}
-                >
-                  {pos}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Bộ lọc nút Mùa giải */}
-          <div className="space-y-1.5">
-            <label className="block text-gray-400 text-[10px] font-extrabold uppercase tracking-wider">Mùa Thẻ (Seasons)</label>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
-              {SEASONS_LIST.map(season => (
-                <button
-                  key={season.code}
-                  onClick={() => setSelectedSeason(season.code)}
-                  className={`px-2 py-2 rounded-lg text-[9px] font-black text-center cursor-pointer border transition-all truncate ${
-                    selectedSeason === season.code
-                      ? 'border-[#00FF87] ring-2 ring-[#00FF87]/30 scale-95'
-                      : 'border-transparent opacity-65 hover:opacity-100'
-                  } ${season.bg}`}
-                >
-                  {season.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Thanh trượt giới hạn Lương và OVR */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1 border-t border-gray-800/60">
-            <div>
-              <div className="flex justify-between text-xs text-gray-400 mb-1">
-                <span>Giới hạn lương trần cầu thủ</span>
-                <span className="text-fo4-accent font-bold">{maxSalary} FP</span>
-              </div>
+          <div className="flex items-center space-x-2">
+            {/* Ô tìm kiếm tên */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400" />
               <input
-                type="range"
-                min="10"
-                max="30"
-                value={maxSalary}
-                onChange={(e) => setMaxSalary(parseInt(e.target.value))}
-                className="w-full accent-fo4-accent cursor-pointer"
+                type="text"
+                placeholder="Tìm tên siêu sao, ví dụ: Ronaldo, Messi, Quang Hải..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-[#182335] text-white pl-11 pr-4 py-2.5 rounded-xl border border-gray-700/60 focus:border-fo4-accent outline-none text-sm transition"
               />
             </div>
 
-            <div>
-              <div className="flex justify-between text-xs text-gray-400 mb-1">
-                <span>Chỉ số OVR tối thiểu</span>
-                <span className="text-fo4-gold font-bold">{minOVR} OVR</span>
-              </div>
-              <input
-                type="range"
-                min="80"
-                max="120"
-                value={minOVR}
-                onChange={(e) => setMinOVR(parseInt(e.target.value))}
-                className="w-full accent-fo4-gold cursor-pointer"
-              />
-            </div>
+            {/* Nút bấm Đóng/Mở bộ lọc nâng cao cực kỳ trực quan */}
+            <button
+              onClick={() => setShowFilters(!showAdvancedFilters)}
+              className={`flex items-center space-x-1.5 px-3 py-2.5 rounded-xl border text-xs font-bold transition cursor-pointer ${
+                showAdvancedFilters || selectedSeason !== 'Tất cả' || selectedPosition !== 'Tất cả'
+                  ? 'bg-fo4-accent/15 border-fo4-accent text-fo4-accent'
+                  : 'bg-[#182335] border-gray-700 text-gray-300 hover:text-white'
+              }`}
+            >
+              <Sliders className="w-4 h-4" />
+              <span className="hidden sm:inline">⚙️ BỘ LỌC</span>
+            </button>
           </div>
+
+          {/* BỘ LỌC NÂNG CAO (CHỈ HIỂN THỊ KHI ĐƯỢC BẤM MỞ) */}
+          {showAdvancedFilters && (
+            <div className="p-3.5 bg-[#0B1220] rounded-xl border border-gray-800 space-y-4 animate-in slide-in-from-top-3 duration-200">
+              
+              {/* Lọc vị trí */}
+              <div className="space-y-1.5">
+                <label className="block text-gray-400 text-[10px] font-extrabold uppercase tracking-wider">Vị Trí Cụ Thể</label>
+                <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto pr-1">
+                  {POSITIONS_LIST.map(pos => (
+                    <button
+                      key={pos}
+                      onClick={() => setSelectedPosition(pos)}
+                      className={`px-2.5 py-1.5 rounded-lg text-[10px] font-black cursor-pointer border transition-all ${
+                        selectedPosition === pos
+                          ? 'bg-fo4-accent border-fo4-accent text-fo4-dark shadow-md'
+                          : 'bg-[#182335] border-gray-800 text-gray-300'
+                      }`}
+                    >
+                      {pos}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Lọc mùa giải */}
+              <div className="space-y-1.5">
+                <label className="block text-gray-400 text-[10px] font-extrabold uppercase tracking-wider">Mùa Thẻ (Seasons)</label>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-1">
+                  {SEASONS_LIST.map(season => (
+                    <button
+                      key={season.code}
+                      onClick={() => setSelectedSeason(season.code)}
+                      className={`px-1.5 py-1.5 rounded-lg text-[9px] font-black text-center cursor-pointer border transition-all truncate ${
+                        selectedSeason === season.code
+                          ? 'border-[#00FF87] ring-1 ring-[#00FF87]/30'
+                          : 'border-transparent opacity-65'
+                      } ${season.bg}`}
+                    >
+                      {season.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Thanh trượt giới hạn Lương và OVR */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1.5 border-t border-gray-800/60">
+                <div>
+                  <div className="flex justify-between text-[10px] text-gray-400 mb-1">
+                    <span>Lương cầu thủ tối đa</span>
+                    <span className="text-fo4-accent font-bold">{maxSalary} FP</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="10"
+                    max="30"
+                    value={maxSalary}
+                    onChange={(e) => setMaxSalary(parseInt(e.target.value))}
+                    className="w-full accent-fo4-accent cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-[10px] text-gray-400 mb-1">
+                    <span>Chỉ số OVR tối thiểu</span>
+                    <span className="text-fo4-gold font-bold">{minOVR} OVR</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="80"
+                    max="120"
+                    value={minOVR}
+                    onChange={(e) => setMinOVR(parseInt(e.target.value))}
+                    className="w-full accent-fo4-gold cursor-pointer"
+                  />
+                </div>
+              </div>
+
+            </div>
+          )}
 
         </div>
 
-        {/* Danh sách cầu thủ lọc được */}
+        {/* Danh sách cầu thủ chiếm 100% diện tích còn lại */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2.5 bg-[#0D1322]">
           <div className="flex items-center justify-between mb-2">
             <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">
-              KẾT QUẢ TÌM KIẾM ({filteredPlayers.length})
+              DANH SÁCH CẦU THỦ SẴN CÓ ({filteredPlayers.length})
             </p>
             {(selectedSeason !== 'Tất cả' || selectedPosition !== 'Tất cả') && (
               <button 
@@ -243,21 +266,21 @@ export default function PlayerSelectorModal({
                 <div
                   key={player.id}
                   onClick={() => onSelectPlayer(player)}
-                  className="flex items-center justify-between p-3 bg-fo4-card/65 hover:bg-fo4-card border border-gray-800/80 hover:border-fo4-accent/40 rounded-2xl transition cursor-pointer active:scale-[0.99] group shadow-sm"
+                  className="flex items-center justify-between p-3.5 bg-fo4-card/65 hover:bg-fo4-card border border-gray-800/80 hover:border-fo4-accent/40 rounded-2xl transition cursor-pointer active:scale-[0.99] group shadow-sm"
                 >
                   {/* Trái: THẺ CẦU THỦ 3D thu nhỏ + Thông tin chính */}
                   <div className="flex items-center space-x-4">
                     
-                    {/* Thẻ 3D thu nhỏ ngay trong danh sách lọc */}
+                    {/* Thẻ 3D thu nhỏ chuẩn chỉ */}
                     <div className={`relative flex flex-col items-center ${cardStyle.bg} ${cardStyle.border} rounded-t-lg rounded-b-[4px] w-12 h-[68px] overflow-hidden shadow-md shrink-0`}>
                       <div className="flex items-center justify-between w-full text-[7.5px] font-black px-1 pt-0.5">
                         <span className={cardStyle.numText}>{player.rating}</span>
-                        <span className="text-[6.5px] bg-black/40 text-white px-0.5 rounded">
+                        <span className="text-[6.5px] bg-black/45 text-white px-0.5 rounded">
                           {player.salary}
                         </span>
                       </div>
                       
-                      {/* Ảnh Nexon thật */}
+                      {/* Ảnh Miniface thật từ s1.fifaaddict.com */}
                       <div className="flex-1 w-full flex items-end justify-center relative mt-0.5">
                         <div className="absolute inset-0 flex items-end justify-center opacity-30 z-0">
                           <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -323,4 +346,4 @@ export default function PlayerSelectorModal({
       </div>
     </div>
   );
-                                                                                           }
+}
