@@ -16,7 +16,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false, // Tối ưu giao diện cảm ứng không bị zoom ngoài ý muốn
+  userScalable: false,
 };
 
 export default function RootLayout({
