@@ -2,14 +2,15 @@ export interface Player {
   id: string;
   name: string;
   displayName: string;
-  season: string; // Ví dụ: ICON, 24TOTY, 23UCL, CC, VNM
+  season: string; // ICON, 24TOTY, 23UCL, CC, VNM, LN, HW
   rating: number; // Chỉ số tổng quát OVR
   salary: number; // Mức lương
-  value: number;  // Giá trị chuyển nhượng (Đơn vị: Tỷ BP, ví dụ: 1200 tương đương 1,200 Tỷ BP)
+  value: number;  // Giá trị chuyển nhượng (Tỷ BP)
+  image: string;  // Đường dẫn ảnh Miniface thật từ CDN Nexon/Garena
   positions: string[]; // Ví dụ: ["ST", "CF"]
   nationality: string;
   club: string; // Ví dụ: Chelsea, Real Madrid, Manchester United, Vietnam
-  avatarColor: string; // Màu nền avatar
+  avatarColor: string; // Màu nền avatar dự phòng
   stats: {
     pace: number;        // Tốc độ
     shooting: number;    // Dứt điểm
@@ -32,7 +33,7 @@ export interface TeamColor {
   id: string;
   name: string;
   type: 'club' | 'nationality';
-  requirement: number; // Số cầu thủ tối thiểu để kích hoạt
+  requirement: number;
   statBoosts: {
     statName: string;
     value: number;
