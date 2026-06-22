@@ -23,7 +23,6 @@ const SEASONS_LIST = [
 
 const POSITIONS_LIST = ['Tất cả', 'ST', 'LW', 'RW', 'CF', 'CAM', 'LM', 'RM', 'CM', 'CDM', 'LWB', 'RWB', 'LB', 'RB', 'CB', 'GK'];
 
-// Định nghĩa màu Gradient và màu viền cho Thẻ giống hệt trên Sân
 const GET_SEASON_CARD_STYLE = (season: string) => {
   switch (season) {
     case 'ICON':
@@ -107,6 +106,12 @@ export default function PlayerSelectorModal({
     });
   }, [searchTerm, selectedSeason, selectedPosition, maxSalary, minOVR]);
 
+  const getProxyUrl = (url: string) => {
+    if (!url) return '';
+    const clean = url.replace(/^https?:\/\//, '');
+    return `https://wsrv.nl/?url=${clean}&we`;
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -127,7 +132,7 @@ export default function PlayerSelectorModal({
           </button>
         </div>
 
-        {/* Khung tìm kiếm chính & Nút mở rộng bộ lọc */}
+        {/* Khung tìm kiếm chính */}
         <div className="p-3.5 border-b border-gray-800 bg-[#111A2C] space-y-3 shrink-0">
           
           <div className="flex items-center space-x-2">
@@ -155,7 +160,7 @@ export default function PlayerSelectorModal({
             </button>
           </div>
 
-          {/* BỘ LỌC NÂNG CAO (CHỈ HIỂN THỊ KHI ĐƯỢC BẤM MỞ) */}
+          {/* BỘ LỌC NÂNG CAO */}
           {showAdvancedFilters && (
             <div className="p-3.5 bg-[#0B1220] rounded-xl border border-gray-800 space-y-4 animate-in slide-in-from-top-3 duration-200">
               
@@ -237,7 +242,7 @@ export default function PlayerSelectorModal({
 
         </div>
 
-        {/* Danh sách cầu thủ chiếm 100% diện tích còn lại */}
+        {/* Danh sách cầu thủ */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2.5 bg-[#0D1322]">
           <div className="flex items-center justify-between mb-2">
             <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">
@@ -262,9 +267,8 @@ export default function PlayerSelectorModal({
                 <div
                   key={player.id}
                   onClick={() => onSelectPlayer(player)}
-                  className="flex items-center justify-between p-3 bg-fo4-card/65 hover:bg-fo4-card border border-gray-800/80 hover:border-fo4-accent/40 rounded-2xl transition cursor-pointer active:scale-[0.99] group shadow-sm animate-in fade-in duration-200"
+                  className="flex items-center justify-between p-3.5 bg-fo4-card/65 hover:bg-fo4-card border border-gray-800/80 hover:border-fo4-accent/40 rounded-2xl transition cursor-pointer active:scale-[0.99] group shadow-sm animate-in fade-in duration-200"
                 >
-                  {/* Trái: THẺ CẦU THỦ 3D thu nhỏ + Thông tin chính */}
                   <div className="flex items-center space-x-4">
                     
                     {/* Thẻ 3D thu nhỏ chuẩn chỉ */}
@@ -276,7 +280,7 @@ export default function PlayerSelectorModal({
                         </span>
                       </div>
                       
-                      {/* Ảnh Miniface thật từ s1.fifaaddict.com */}
+                      {/* Ảnh Miniface qua Proxy */}
                       <div className="flex-1 w-full flex items-end justify-center relative mt-0.5">
                         <div className="absolute inset-0 flex items-end justify-center opacity-30 z-0">
                           <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -285,9 +289,8 @@ export default function PlayerSelectorModal({
                         </div>
                         {player.image && !hasImgError ? (
                           <img
-                            src={player.image}
+                            src={getProxyUrl(player.image)}
                             alt={player.name}
-                            referrerPolicy="no-referrer"
                             className="w-full h-full object-contain relative z-10 scale-125"
                             onError={() => {
                               setImgErrors(prev => ({ ...prev, [player.id]: true }));
@@ -297,7 +300,7 @@ export default function PlayerSelectorModal({
                       </div>
 
                       <div className={`w-full text-center ${cardStyle.badgeBg} py-0.2 text-[6.5px] font-black`}>
-                        {player.season}
+                        {seasonCode => player.season}
                       </div>
                     </div>
 
@@ -315,7 +318,6 @@ export default function PlayerSelectorModal({
                     </div>
                   </div>
 
-                  {/* Phải: Chỉ số & Giá tiền */}
                   <div className="flex items-center space-x-3 sm:space-x-5">
                     <div className="text-right">
                       <span className="block text-fo4-gold font-black text-sm sm:text-base">{player.rating}</span>
