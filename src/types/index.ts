@@ -11,7 +11,7 @@ export interface Player {
   positions: string[]; // Vị trí thi đấu
   nationality: string;
   club: string;
-  avatarColor: string; // Thêm lại thuộc tính màu nền avatar dự phòng!
+  avatarColor: string; // Thuộc tính màu nền avatar dự phòng
   image: string;
   stats: { pace: number; shooting: number; passing: number; dribbling: number; defending: number; physicality: number; };
 }
@@ -19,3 +19,11 @@ export interface Player {
 export type FormationName = '4-2-3-1' | '4-3-3' | '4-1-2-3' | '5-2-3' | '3-5-2';
 
 export interface PositionCoordinate { role: string; top: string; left: string; }
+
+export interface TeamColor {
+  id: string;
+  name: string;
+  type: 'club' | 'nationality';
+  requirement: number; // Số cầu thủ tối thiểu để kích hoạt
+  statBoosts: { statName: string; value: number; }[];
+}
