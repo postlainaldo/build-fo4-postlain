@@ -7,10 +7,11 @@ export interface Player {
   seasonId: number; // Mã số mùa giải để gọi ảnh phôi thẻ
   rating: number; // Chỉ số tổng quát OVR
   salary: number; // Mức lương
-  value: number; // Giá trị chuyển nhượng (Tỷ BP)
+  value: number;  // Giá trị chuyển nhượng (Tỷ BP)
   positions: string[]; // Vị trí thi đấu
   nationality: string;
   club: string;
+  avatarColor: string; // Thêm lại thuộc tính màu nền avatar dự phòng!
   image: string;
   stats: { pace: number; shooting: number; passing: number; dribbling: number; defending: number; physicality: number; };
 }
