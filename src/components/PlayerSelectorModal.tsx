@@ -8,7 +8,7 @@ interface PlayerSelectorModalProps { isOpen: boolean; onClose: () => void; onSel
 
 const SEASONS_LIST = [
   { code: 'Tất cả', label: 'TẤT CẢ', bg: 'bg-[#182335] text-white border-gray-700' },
-  { code: 'VNM', label: 'VNM', bg: 'bg-red-700 border-yellow-500 text-yellow-300 font-extrabold shadow-lg' },
+  { code: '24VB', label: '24VB (VIỆT NAM)', bg: 'bg-red-700 border-yellow-500 text-yellow-300 font-extrabold shadow-lg' },
   { code: 'ICON', label: 'ICON', bg: 'bg-gradient-to-r from-amber-600 to-yellow-400 text-black font-black border-yellow-300' },
   { code: '24TOTY', label: '24TOTY', bg: 'bg-gradient-to-r from-blue-900 to-indigo-950 text-[#00FF87] font-black border-emerald-400/50' },
   { code: '23UCL', label: '23UCL', bg: 'bg-gradient-to-r from-blue-800 to-blue-950 text-white font-bold border-blue-400' },
@@ -19,7 +19,7 @@ const POSITIONS_LIST = ['Tất cả', 'ST', 'LW', 'RW', 'CF', 'CAM', 'LM', 'RM',
 
 const GET_SEASON_CARD_STYLE = (season: string) => {
   if (season === 'ICON') return { bg: 'bg-gradient-to-b from-[#FFF59D] via-[#D4AF37] to-[#4E340E]', border: 'border border-[#FFE082]', text: 'text-black', numText: 'text-[#4E340E]', badgeBg: 'bg-black text-[#FFD700]' };
-  if (season === 'VNM') return { bg: 'bg-gradient-to-b from-[#FF5252] via-[#E53935] to-[#800000]', border: 'border border-[#FFD54F]', text: 'text-white', numText: 'text-yellow-300', badgeBg: 'bg-yellow-400 text-black' };
+  if (season === '24VB') return { bg: 'bg-gradient-to-b from-[#FF5252] via-[#E53935] to-[#800000]', border: 'border border-[#FFD54F]', text: 'text-white', numText: 'text-yellow-300', badgeBg: 'bg-yellow-400 text-black' };
   if (season === '24TOTY') return { bg: 'bg-gradient-to-b from-[#1A237E] via-[#0D1B2A] to-[#020617]', border: 'border border-[#00E5FF]', text: 'text-white', numText: 'text-[#00FF87]', badgeBg: 'bg-cyan-500 text-black' };
   if (season === '23UCL') return { bg: 'bg-gradient-to-b from-[#0D47A1] via-[#1A237E] to-[#120E2E]', border: 'border border-[#42A5F5]', text: 'text-white', numText: 'text-cyan-300', badgeBg: 'bg-blue-600 text-white' };
   if (season === 'CC') return { bg: 'bg-gradient-to-b from-[#ECEFF1] via-[#546E7A] to-[#263238]', border: 'border border-[#B0BEC5]', text: 'text-white', numText: 'text-slate-300', badgeBg: 'bg-slate-700 text-white' };
@@ -46,10 +46,7 @@ export default function PlayerSelectorModal({ isOpen, onClose, onSelectPlayer, t
     });
   }, [searchTerm, selectedSeason, selectedPosition, maxSalary, minOVR]);
 
-  const getProxyUrl = (url: string) => {
-    if (!url) return '';
-    return `https://wsrv.nl/?url=${url.replace(/^https?:\/\//, '')}&we`;
-  };
+  const getProxyUrl = (url: string) => url ? `https://wsrv.nl/?url=${url.replace(/^https?:\/\//, '')}&we` : '';
 
   if (!isOpen) return null;
 
@@ -106,7 +103,7 @@ export default function PlayerSelectorModal({ isOpen, onClose, onSelectPlayer, t
           )}
         </div>
 
-        {/* Danh sách cầu thủ chiếm 100% diện tích còn lại */}
+        {/* Danh sách cầu thủ */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2.5 bg-[#0D1322]">
           <div className="flex items-center justify-between mb-2">
             <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">DANH SÁCH CẦU THỦ SẴN CÓ ({filteredPlayers.length})</p>
@@ -124,12 +121,15 @@ export default function PlayerSelectorModal({ isOpen, onClose, onSelectPlayer, t
                     {/* Thẻ 3D thu nhỏ chuẩn chỉ */}
                     <div className={`relative flex flex-col items-center ${cardStyle.bg} ${cardStyle.border} rounded-t-lg rounded-b-[4px] w-12 h-[68px] overflow-hidden shadow-md shrink-0`}>
                       <div className="flex items-center justify-between w-full text-[7.5px] font-black px-1 pt-0.5"><span className={cardStyle.numText}>{player.rating}</span><span className="text-[6.5px] bg-black/45 text-white px-0.5 rounded">{player.salary}</span></div>
+                      
+                      {/* Ảnh Miniface qua Proxy */}
                       <div className="flex-1 w-full flex items-end justify-center relative mt-0.5">
                         <div className="absolute inset-0 flex items-end justify-center opacity-30 z-0">
                           <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" /></svg>
                         </div>
                         {player.image && !hasImgError ? <img src={getProxyUrl(player.image)} alt={player.name} className="w-full h-full object-contain relative z-10 scale-125" onError={() => setImgErrors(prev => ({ ...prev, [player.id]: true }))} /> : null}
                       </div>
+
                       <div className={`w-full text-center ${cardStyle.badgeBg} py-0.2 text-[6.5px] font-black`}>{player.season}</div>
                     </div>
 
@@ -154,4 +154,4 @@ export default function PlayerSelectorModal({ isOpen, onClose, onSelectPlayer, t
       </div>
     </div>
   );
-                    }
+}
