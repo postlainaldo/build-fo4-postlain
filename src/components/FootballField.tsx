@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Player, FormationName, PositionCoordinate } from '@/types';
 import { Plus, Trash2 } from 'lucide-react';
 
@@ -12,12 +12,69 @@ interface FootballFieldProps {
   onRemovePlayer: (index: number, e: React.MouseEvent) => void;
 }
 
+// Định nghĩa màu Gradient và màu viền sang xịn mịn cho từng mùa thẻ giống hệt trong game
+const GET_SEASON_CARD_STYLE = (season: string) => {
+  switch (season) {
+    case 'ICON':
+      return {
+        bg: 'bg-gradient-to-b from-[#FFF59D] via-[#D4AF37] to-[#4E340E]',
+        border: 'border-2 border-[#FFE082] shadow-[0_0_12px_rgba(212,175,55,0.4)]',
+        text: 'text-black',
+        numText: 'text-[#4E340E]',
+        badgeBg: 'bg-black text-[#FFD700]',
+      };
+    case 'VNM':
+      return {
+        bg: 'bg-gradient-to-b from-[#FF5252] via-[#E53935] to-[#800000]',
+        border: 'border-2 border-[#FFD54F] shadow-[0_0_12px_rgba(255,82,82,0.4)]',
+        text: 'text-white',
+        numText: 'text-yellow-300',
+        badgeBg: 'bg-yellow-400 text-black',
+      };
+    case '24TOTY':
+      return {
+        bg: 'bg-gradient-to-b from-[#1A237E] via-[#0D1B2A] to-[#020617]',
+        border: 'border-2 border-[#00E5FF] shadow-[0_0_12px_rgba(0,229,255,0.5)]',
+        text: 'text-white',
+        numText: 'text-[#00FF87]',
+        badgeBg: 'bg-cyan-500 text-black',
+      };
+    case '23UCL':
+      return {
+        bg: 'bg-gradient-to-b from-[#0D47A1] via-[#1A237E] to-[#120E2E]',
+        border: 'border-2 border-[#42A5F5] shadow-[0_0_10px_rgba(66,165,245,0.4)]',
+        text: 'text-white',
+        numText: 'text-cyan-300',
+        badgeBg: 'bg-blue-600 text-white',
+      };
+    case 'CC':
+      return {
+        bg: 'bg-gradient-to-b from-[#ECEFF1] via-[#546E7A] to-[#263238]',
+        border: 'border-2 border-[#B0BEC5] shadow-[0_0_10px_rgba(176,190,197,0.3)]',
+        text: 'text-white',
+        numText: 'text-slate-300',
+        badgeBg: 'bg-slate-700 text-white',
+      };
+    default:
+      return {
+        bg: 'bg-gradient-to-b from-[#374151] to-[#111827]',
+        border: 'border-2 border-gray-600',
+        text: 'text-white',
+        numText: 'text-gray-300',
+        badgeBg: 'bg-gray-700 text-white',
+      };
+  }
+};
+
 export default function FootballField({
   selectedPlayers,
   coordinates,
   onSlotClick,
   onRemovePlayer
 }: FootballFieldProps) {
+  // Quản lý trạng thái tải ảnh thành công hay thất bại từng slot
+  const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({});
+
   return (
     <div className="relative w-full aspect-[3.2/4] bg-field-texture border border-emerald-900/60 rounded-2xl overflow-hidden shadow-inner select-none max-w-2xl mx-auto">
       
@@ -38,6 +95,8 @@ export default function FootballField({
       {/* Sắp xếp các thẻ cầu thủ lên sơ đồ */}
       {coordinates.map((pos, idx) => {
         const player = selectedPlayers[idx];
+        const style = player ? GET_SEASON_CARD_STYLE(player.season) : null;
+        const hasImgError = imgErrors[idx];
 
         return (
           <div
@@ -46,65 +105,76 @@ export default function FootballField({
             className="absolute -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center justify-center transition-all duration-300 ease-out cursor-pointer active:scale-95 group"
             onClick={() => onSlotClick(idx)}
           >
-            {player ? (
-              <div className="relative flex flex-col items-center">
-                {/* Nút xoá */}
+            {player && style ? (
+              <div className="relative flex flex-col items-center animate-in fade-in-50 duration-200">
+                
+                {/* Nút xoá nhanh khi hover trên PC hoặc tap trên Mobile */}
                 <button
                   onClick={(e) => onRemovePlayer(idx, e)}
-                  className="absolute -top-3 -right-3 bg-red-600 hover:bg-red-500 text-white rounded-full p-1.5 shadow-lg border border-red-900 z-30 transition opacity-100 md:opacity-0 md:group-hover:opacity-100 cursor-pointer"
+                  className="absolute -top-4 -right-4 bg-red-600 hover:bg-red-500 text-white rounded-full p-1.5 shadow-xl border border-red-950 z-30 transition opacity-100 md:opacity-0 md:group-hover:opacity-100 cursor-pointer"
                   title="Xoá cầu thủ khỏi đội hình"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash2 className="w-4 h-4" />
                 </button>
 
-                {/* Thẻ cầu thủ */}
-                <div className="flex flex-col items-center bg-[#101726]/95 border border-fo4-gold/40 rounded-lg p-1.5 w-16 md:w-20 shadow-md">
-                  <div className="flex items-center justify-between w-full text-[10px] md:text-xs font-bold px-0.5 border-b border-gray-700/50 pb-0.5 animate-pulse-short">
-                    <span className="text-fo4-gold">{player.rating}</span>
-                    <span className="text-gray-300 bg-gray-800 rounded px-1 text-[8px] md:text-[10px]">
+                {/* THẺ ĐỒ HỌA 3D CHUẨN FC ONLINE */}
+                <div className={`relative flex flex-col items-center ${style.bg} ${style.border} rounded-t-xl rounded-b-md w-16 md:w-[76px] aspect-[1/1.42] overflow-hidden`}>
+                  
+                  {/* Dải chỉ số OVR & Lương trên cùng */}
+                  <div className="flex items-center justify-between w-full text-[10px] md:text-xs font-black px-1.5 pt-1">
+                    <span className={style.numText}>{player.rating}</span>
+                    <span className="text-[8px] md:text-[9.5px] bg-black/45 text-white px-1 py-0.2 rounded border border-white/10">
                       {player.salary}
                     </span>
                   </div>
 
-                  {/* Season Badge */}
-                  <div className="my-1 text-[8px] font-extrabold px-1.5 py-0.2 rounded bg-fo4-gold text-black scale-90 md:scale-100">
+                  {/* Logo/Badge Mùa Thẻ */}
+                  <div className={`mt-0.5 text-[7px] md:text-[8px] font-black px-1.5 py-0.2 rounded ${style.badgeBg} uppercase tracking-wider scale-90`}>
                     {player.season}
                   </div>
 
-                  {/* THAY THẾ: Hiển thị hình ảnh thật cầu thủ */}
-                  <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center relative overflow-hidden">
-                    {player.image ? (
+                  {/* Vùng chứa ảnh chân dung / Silhouette SVG lấp lánh */}
+                  <div className="flex-1 w-full flex items-end justify-center relative mt-0.5">
+                    
+                    {/* Bóng người Silhouette SVG chất lượng cao phát sáng neon (Dự phòng và thẩm mỹ) */}
+                    <div className="absolute inset-0 flex items-end justify-center opacity-40 z-0">
+                      <svg className="w-11 h-11 text-white/35" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                      </svg>
+                    </div>
+
+                    {/* Ảnh thật của cầu thủ từ CDN Nexon mới */}
+                    {player.image && !hasImgError ? (
                       <img
                         src={player.image}
                         alt={player.displayName}
-                        className="w-full h-full object-contain relative z-10 scale-110"
-                        onError={(e) => {
-                          // Nếu ảnh tải lỗi, biến đổi thành vòng tròn chữ dự phòng
-                          e.currentTarget.style.display = 'none';
+                        className="w-full h-[95%] object-contain relative z-10 scale-125 translate-y-1 transform transition duration-300 hover:scale-135"
+                        onError={() => {
+                          setImgErrors(prev => ({ ...prev, [idx]: true }));
                         }}
                       />
                     ) : null}
-                    {/* Dự phòng */}
-                    <div className="absolute inset-0 bg-[#1e293b]/50 rounded-full flex items-center justify-center text-white text-[9px] font-bold">
-                      {player.name.substring(0, 2).toUpperCase()}
-                    </div>
+
                   </div>
 
-                  <div className="text-[7px] md:text-[9px] text-[#00FF87] font-semibold mt-1 bg-emerald-950/65 px-1 rounded border border-emerald-500/20">
+                  {/* Vạch vị trí chân thẻ cầu thủ */}
+                  <div className="w-full text-center bg-black/40 py-0.5 text-[7px] md:text-[9px] font-bold text-[#00FF87] border-t border-white/10 z-20">
                     {pos.role}
                   </div>
                 </div>
 
-                <div className="mt-1 bg-black/85 backdrop-blur-sm border border-gray-800 text-white text-[9px] md:text-xs font-semibold py-0.5 px-1.5 rounded-full text-center max-w-[85px] md:max-w-[105px] truncate shadow">
+                {/* Nhãn Tên Cầu Thủ dưới thẻ */}
+                <div className="mt-1.5 bg-slate-900/90 backdrop-blur-md border border-gray-800 text-white text-[9.5px] md:text-xs font-bold py-0.5 px-2 rounded-full text-center max-w-[90px] md:max-w-[110px] truncate shadow-lg">
                   {player.displayName}
                 </div>
               </div>
             ) : (
+              // Trạng thái slot trống
               <div className="flex flex-col items-center">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-[#0B0F19]/90 border-2 border-dashed border-emerald-500/40 hover:border-[#00FF87] rounded-full flex items-center justify-center text-[#00FF87] shadow-lg transition">
+                <div className="w-11 h-11 md:w-13 md:h-13 bg-slate-950/80 border-2 border-dashed border-emerald-500/40 hover:border-[#00FF87] rounded-full flex items-center justify-center text-[#00FF87] shadow-lg transition active:scale-90">
                   <Plus className="w-5 h-5 animate-pulse" />
                 </div>
-                <div className="mt-1 bg-black/75 text-[9px] md:text-xs font-bold text-gray-300 py-0.5 px-2 rounded-full border border-gray-800">
+                <div className="mt-1.5 bg-slate-900/85 text-[9px] md:text-xs font-extrabold text-gray-300 py-0.5 px-2 rounded-full border border-gray-800">
                   {pos.role}
                 </div>
               </div>
