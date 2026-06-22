@@ -251,7 +251,7 @@ export const PLAYERS_DB: Player[] = [
     nationality: "Italy",
     club: "Real Madrid",
     avatarColor: "bg-slate-800",
-    stats: { pace: 112, shooting: 69, text: 99, passing: 99, dribbling: 102, defending: 119, physicality: 111 }
+    stats: { pace: 112, shooting: 69, passing: 99, dribbling: 102, defending: 119, physicality: 111 }
   },
   {
     id: "rma-casillas-icon",
