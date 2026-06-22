@@ -12,7 +12,6 @@ interface FootballFieldProps {
   onRemovePlayer: (index: number, e: React.MouseEvent) => void;
 }
 
-// Định nghĩa màu Gradient và màu viền sang xịn mịn cho từng mùa thẻ giống hệt trong game
 const GET_SEASON_CARD_STYLE = (season: string) => {
   switch (season) {
     case 'ICON':
@@ -72,7 +71,6 @@ export default function FootballField({
   onSlotClick,
   onRemovePlayer
 }: FootballFieldProps) {
-  // Quản lý trạng thái tải ảnh thành công hay thất bại từng slot
   const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({});
 
   return (
@@ -108,7 +106,7 @@ export default function FootballField({
             {player && style ? (
               <div className="relative flex flex-col items-center animate-in fade-in-50 duration-200">
                 
-                {/* Nút xoá nhanh khi hover trên PC hoặc tap trên Mobile */}
+                {/* Nút xoá */}
                 <button
                   onClick={(e) => onRemovePlayer(idx, e)}
                   className="absolute -top-4 -right-4 bg-red-600 hover:bg-red-500 text-white rounded-full p-1.5 shadow-xl border border-red-950 z-30 transition opacity-100 md:opacity-0 md:group-hover:opacity-100 cursor-pointer"
@@ -133,17 +131,17 @@ export default function FootballField({
                     {player.season}
                   </div>
 
-                  {/* Vùng chứa ảnh chân dung / Silhouette SVG lấp lánh */}
+                  {/* Vùng chứa ảnh chân dung */}
                   <div className="flex-1 w-full flex items-end justify-center relative mt-0.5">
                     
-                    {/* Bóng người Silhouette SVG chất lượng cao phát sáng neon (Dự phòng và thẩm mỹ) */}
+                    {/* Bóng người Silhouette SVG */}
                     <div className="absolute inset-0 flex items-end justify-center opacity-40 z-0">
                       <svg className="w-11 h-11 text-white/35" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                       </svg>
                     </div>
 
-                    {/* Ảnh thật của cầu thủ từ CDN Nexon mới */}
+                    {/* Ảnh thật của cầu thủ từ CDN FIFAAddict mới */}
                     {player.image && !hasImgError ? (
                       <img
                         src={player.image}
