@@ -13,7 +13,7 @@ import TeamColorDisplay from '@/components/TeamColorDisplay';
 import ShareSavePanel from '@/components/ShareSavePanel';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 
-import { ShieldAlert, ChevronDown, Coins, Users, Award } from 'lucide-react';
+import { ShieldAlert, ChevronDown, Coins, Users, Award, TrendingUp } from 'lucide-react';
 
 const FORMATIONS: Record<FormationName, { role: string; top: string; left: string }[]> = {
   '4-2-3-1': [
@@ -88,7 +88,6 @@ const SALARY_CAPS = [255, 260, 290, 300];
 function SquadBuilderContent() {
   const searchParams = useSearchParams();
 
-  // Khai báo các State quản lý đội hình
   const [formation, setFormation] = useState<FormationName>('4-2-3-1');
   const [salaryCap, setSalaryCap] = useState<number>(300);
   const [selectedPlayers, setSelectedPlayers] = useState<Record<number, Player | null>>({
@@ -98,7 +97,6 @@ function SquadBuilderContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeSlotIndex, setActiveSlotIndex] = useState<number | null>(null);
 
-  // Đọc dữ liệu nếu có link chia sẻ hoặc dữ liệu lưu ở LocalStorage
   useEffect(() => {
     const shareToken = searchParams.get('s');
     if (shareToken) {
@@ -184,7 +182,9 @@ function SquadBuilderContent() {
 
   const activePlayers = Object.values(selectedPlayers).filter((p): p is Player => p !== null);
   
+  // TÍNH TOÁN THEO THỜI GIAN THỰC
   const totalSalary = activePlayers.reduce((acc, p) => acc + p.salary, 0);
+  const totalValue = activePlayers.reduce((acc, p) => acc + p.value, 0);
   
   const avgOVR = activePlayers.length > 0 
     ? Math.round(activePlayers.reduce((acc, p) => acc + p.rating, 0) / activePlayers.length) 
@@ -253,33 +253,52 @@ function SquadBuilderContent() {
           <div className="bg-fo4-card border border-gray-800 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-fo4-accent/10 to-transparent rounded-full -mr-6 -mt-6 pointer-events-none" />
             
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-[#0B0F19] border border-gray-800 rounded-xl p-3.5 text-center">
-                <span className="text-gray-400 text-[10px] font-extrabold uppercase tracking-widest block mb-1">
+            {/* THỐNG KÊ 3 CHỈ SỐ CỐT LÕI (BỔ SUNG THÊM GIÁ TRỊ ĐỘI HÌNH TRÊN DI ĐỘNG) */}
+            <div className="grid grid-cols-3 gap-2 sm:gap-3.5">
+              
+              {/* OVR */}
+              <div className="bg-[#0B0F19] border border-gray-800 rounded-xl p-2.5 sm:p-3 text-center flex flex-col justify-center">
+                <span className="text-gray-400 text-[8px] sm:text-[10px] font-extrabold uppercase tracking-wider block mb-1">
                   OVR ĐỘI HÌNH
                 </span>
-                <div className="flex items-center justify-center space-x-1.5">
-                  <Award className="w-5 h-5 text-fo4-gold" />
-                  <span className="text-2xl font-black text-white">{avgOVR || '--'}</span>
+                <div className="flex items-center justify-center space-x-1">
+                  <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-fo4-gold" />
+                  <span className="text-sm sm:text-lg font-black text-white">{avgOVR || '--'}</span>
                 </div>
               </div>
 
-              <div className={`border rounded-xl p-3.5 text-center transition-all ${
+              {/* LƯƠNG */}
+              <div className={`border rounded-xl p-2.5 sm:p-3 text-center flex flex-col justify-center transition-all ${
                 isOverSalary 
                   ? 'bg-red-950/20 border-red-700/50' 
                   : 'bg-[#0B0F19] border-gray-800'
               }`}>
-                <span className="text-gray-400 text-[10px] font-extrabold uppercase tracking-widest block mb-1">
+                <span className="text-gray-400 text-[8px] sm:text-[10px] font-extrabold uppercase tracking-wider block mb-1">
                   LƯƠNG ĐÃ DÙNG
                 </span>
-                <div className="flex items-center justify-center space-x-1.5">
-                  <Coins className={`w-5 h-5 ${isOverSalary ? 'text-red-500' : 'text-fo4-accent'}`} />
-                  <span className={`text-2xl font-black ${isOverSalary ? 'text-red-500' : 'text-white'}`}>
+                <div className="flex items-center justify-center space-x-1">
+                  <Coins className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isOverSalary ? 'text-red-500' : 'text-fo4-accent'}`} />
+                  <span className={`text-sm sm:text-lg font-black ${isOverSalary ? 'text-red-500' : 'text-white'}`}>
                     {totalSalary}
                   </span>
-                  <span className="text-xs text-gray-500">/{salaryCap}</span>
+                  <span className="text-[10px] text-gray-500">/{salaryCap}</span>
                 </div>
               </div>
+
+              {/* GIÁ TRỊ ĐỘI HÌNH (MỚI BỔ SUNG) */}
+              <div className="bg-[#0B0F19] border border-gray-800 rounded-xl p-2.5 sm:p-3 text-center flex flex-col justify-center">
+                <span className="text-gray-400 text-[8px] sm:text-[10px] font-extrabold uppercase tracking-wider block mb-1">
+                  GIÁ TRỊ ĐỘI
+                </span>
+                <div className="flex items-center justify-center space-x-1">
+                  <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#FFD700]" />
+                  <span className="text-sm sm:text-lg font-black text-[#FFD700]">
+                    {totalValue.toLocaleString('vi-VN')}
+                  </span>
+                  <span className="text-[8px] sm:text-[10px] text-gray-400 font-bold">Tỷ</span>
+                </div>
+              </div>
+
             </div>
 
             {/* Cảnh báo nếu vượt quá lương */}
@@ -287,7 +306,7 @@ function SquadBuilderContent() {
               <div className="mt-3 flex items-center space-x-2 bg-red-950/40 border border-red-700/40 p-3 rounded-xl text-red-400 animate-pulse">
                 <ShieldAlert className="w-5 h-5 shrink-0" />
                 <p className="text-[11px] font-bold leading-normal">
-                  Đội hình vượt quá quỹ lương ({salaryCap} FP)! Bạn cần thay thế bằng các cầu thủ lương thấp hơn để hợp lệ xếp hạng.
+                  Đội hình vượt quá quỹ lương ({salaryCap} FP)! Hãy giảm lương cầu thủ để tham gia đá xếp hạng.
                 </p>
               </div>
             )}
@@ -363,4 +382,4 @@ export default function HomePage() {
       <PWAInstallPrompt />
     </>
   );
-    }
+}
